@@ -1,4 +1,4 @@
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList } from "react-native";
+import { Text, View, TextInput, Pressable, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useContext, useEffect } from "react";
 import { data } from "@/data/todos"
@@ -9,6 +9,7 @@ import Octicons from "@expo/vector-icons/Octicons";
 import Animated, { LinearTransition } from "react-native-reanimated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
+import { useRouter } from "expo-router";
 
 export default function Index() {
   // const [todos, setTodos] = useState(data.sort((a, b) => b.id - a.id));
@@ -18,6 +19,7 @@ export default function Index() {
     Inter_500Medium,
   })
   const { colorScheme, setColorScheme, theme } = useContext(ThemeContext)
+  const router = useRouter()
 
 
   // getting the persisted data 
@@ -81,15 +83,23 @@ export default function Index() {
     setTodos(todos.filter(todo => todo.id !== id))
   }
 
+
+  const handlePress = (id) => {
+    router.push(`/todos/${id}`)
+  }
+
   const renderItem = ({ item }) => (
     <View style={styles.todoItem}>
-      <Text
-        style={[styles.todoText, item.completed && styles.completedText]}
-        onPress={() => toggleTodo(item.id)}
-      >
-        {item.title}
+      <Pressable
+        onPress={() => handlePress(item.id)}
+        onLongPress={() => toggleTodo(item.id)}>
+        <Text
+          style={[styles.todoText, item.completed && styles.completedText]}
+        >
+          {item.title}
+        </Text>
+      </Pressable>
 
-      </Text>
       <Pressable onPress={() => removeTodo(item.id)}>
         <MaterialCommunityIcons name="delete-circle" size={36} color="red" selectable={undefined} />
       </Pressable>
@@ -102,6 +112,7 @@ export default function Index() {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
+          maxLength={30}
           placeholder="Add a new todo"
           placeholderTextColor="gray"
           value={text}
